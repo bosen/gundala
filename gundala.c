@@ -78,7 +78,7 @@ int main() {
 
   char *new_md5 = calc_md5(TARGET_FILE);
   if (!strcmp(SRC_MD5, new_md5)) {
-    return 0; // TODO: check config && resident?
+    return 0; // TODO: check config, cron && background
   } else {
     restore();
   }
