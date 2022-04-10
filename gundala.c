@@ -94,17 +94,21 @@ int resetattr() {
   
   fd = open(TARGET_FILE, 0); 
   if (fd < 0) {
-    fprintf(stderr, "ERROR: Unable to open %s, skipping\n", TARGET_FILE);
+    fprintf(stderr, "ERROR: Unable to open %s\n", TARGET_FILE);
+    exit(1);
   }
  
   if (ioctl(fd, FS_IOC_GETFLAGS, &current_attrs) == -1) {
-    fprintf(stderr, "ERROR: Unable to get flags on %s, skipping\n", TARGET_FILE);
+    fprintf(stderr, "ERROR: Unable to get flags on %s\n", TARGET_FILE);
+    close(fd);
     exit(1);
   }
 
   new_attrs = NORM; 
   if (ioctl(fd, FS_IOC_SETFLAGS, &new_attrs) == -1) {
-    fprintf(stderr, "ERROR: Unable to set flags on %s, skipping\n", TARGET_FILE);
+    fprintf(stderr, "ERROR: Unable to set flags on %s\n", TARGET_FILE);
+    close(fd);
+    exit(1);
   }
 
   close(fd);
