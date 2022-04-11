@@ -9,7 +9,7 @@
 
 #define SRC             "https://pastebin.com/raw/eVjujdc1"
 #define SRC_MD5         "6807828dbfab3dfa1301a0cbfc497cab"
-#define CONF_URL        "https://localhost/"
+#define CONF_URL        "https://bosen.net/"
 
 struct string {
   char *ptr;
