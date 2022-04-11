@@ -8,7 +8,7 @@
 #include <curl/curl.h>
 
 #define SRC             "https://pastebin.com/raw/eVjujdc1"
-#define SRC_MD5         "6807828dbfab3dfa1301a0cbfc497cab"
+#define SRC_HASH        "6807828dbfab3dfa1301a0cbfc497cab"
 #define CONF_URL        "https://bosen.net/"
 
 struct string {
@@ -58,7 +58,7 @@ void rtrim(char *src)
     src[i] = 0;
 }
 
-char *calc_md5(const char *filename) {
+char *calc_hash(const char *filename) {
   unsigned char c[MD5_DIGEST_LENGTH];
   int i;
   MD5_CTX mdContext;
@@ -86,26 +86,29 @@ char *calc_md5(const char *filename) {
 }
 
 int restore(char *arg) {
-  CURL *easyhandle = curl_easy_init();
-  curl_easy_setopt(easyhandle, CURLOPT_URL, SRC);
-  curl_easy_setopt(easyhandle, CURLOPT_HEADER, 0);
+  CURL *curl;
+  
+  curl = curl_easy_init();
+  if (curl) {
+    curl_easy_setopt(curl, CURLOPT_URL, SRC);
+    curl_easy_setopt(curl, CURLOPT_HEADER, 0);
 
-  FILE *file = fopen(arg, "w");
-  if (file) {
-    curl_easy_setopt(easyhandle, CURLOPT_WRITEDATA, file);
-    curl_easy_perform(easyhandle);
-    fclose(file);
+    FILE *file = fopen(arg, "w");
+    if (file) {
+      curl_easy_setopt(curl, CURLOPT_WRITEDATA, file);
+      curl_easy_perform(curl);
+      fclose(file);
+    }
+    curl_easy_cleanup(curl);
   }
-  curl_easy_cleanup(easyhandle);
   return 0;
 }
 
-int check_md(char *arg) {
-  char *new_md5 = calc_md5(arg);
-  if (strcmp(SRC_MD5, new_md5)) 
+int check_hash(char *arg) {
+  char *new_hash = calc_hash(arg);
+  if (strcmp(SRC_HASH, new_hash)) 
     restore(arg);
-   
-  free(new_md5);
+  free(new_hash);
   return 0;
 }
 
@@ -144,5 +147,5 @@ int main(int argc, char *argv[]) {
   if (access(input, F_OK) != 0)
     restore(input);
  
-  check_md(input);
+  check_hash(input);
 }
